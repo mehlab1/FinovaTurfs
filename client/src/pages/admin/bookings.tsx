@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
+import { auth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { AdminSidebar } from "@/components/layout/admin-sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,10 +12,57 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Search, Filter, Download, Eye, Users, TrendingUp, BarChart3 } from "lucide-react";
 import { motion } from "framer-motion";
 
+
 export default function AdminBookings() {
+  const [, setLocation] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [groundFilter, setGroundFilter] = useState("");
+
+  // Dummy data for bookings and grounds
+  const dummyGrounds = [
+    { id: 1, name: "Finova Turf 1", location: "DHA Phase 6" },
+    { id: 2, name: "Finova Turf 2", location: "Gulshan-e-Iqbal" },
+  ];
+  const dummyBookings = [
+    {
+      id: 101,
+      user: { name: "Ali Raza", email: "ali@example.com" },
+      ground: dummyGrounds[0],
+      groundId: 1,
+      date: "2025-07-15",
+      startTime: "18:00",
+      endTime: "19:00",
+      duration: 1,
+      totalPrice: "2000",
+      status: "confirmed",
+    },
+    {
+      id: 102,
+      user: { name: "Sara Khan", email: "sara@example.com" },
+      ground: dummyGrounds[1],
+      groundId: 2,
+      date: "2025-07-15",
+      startTime: "19:00",
+      endTime: "20:00",
+      duration: 1,
+      totalPrice: "2200",
+      status: "pending",
+    },
+    {
+      id: 103,
+      user: { name: "Bilal Ahmed", email: "bilal@example.com" },
+      ground: dummyGrounds[0],
+      groundId: 1,
+      date: "2025-07-16",
+      startTime: "17:00",
+      endTime: "18:00",
+      duration: 1,
+      totalPrice: "2000",
+      status: "cancelled",
+    },
+  ];
+
 
   const { data: bookings, isLoading } = useQuery({
     queryKey: ['/api/admin/bookings'],
@@ -22,6 +71,10 @@ export default function AdminBookings() {
   const { data: grounds } = useQuery({
     queryKey: ['/api/grounds'],
   });
+
+  // Use dummy data if no data is loaded
+  const bookingsData = (bookings && Array.isArray(bookings) && bookings.length > 0) ? bookings : dummyBookings;
+  const groundsData = (grounds && Array.isArray(grounds) && grounds.length > 0) ? grounds : dummyGrounds;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -32,26 +85,27 @@ export default function AdminBookings() {
     }
   };
 
-  const filteredBookings = bookings?.filter((booking: any) => {
+
+  const filteredBookings = bookingsData.filter((booking: any) => {
     const matchesSearch = !searchTerm || 
       booking.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       booking.ground?.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = !statusFilter || booking.status === statusFilter;
-    const matchesGround = !groundFilter || booking.groundId.toString() === groundFilter;
-    
+    const matchesStatus = !statusFilter || statusFilter === 'all' || booking.status === statusFilter;
+    const matchesGround = !groundFilter || groundFilter === 'all' || booking.groundId.toString() === groundFilter;
     return matchesSearch && matchesStatus && matchesGround;
-  }) || [];
+  });
 
-  const totalRevenue = bookings?.reduce((sum: number, booking: any) => sum + parseFloat(booking.totalPrice), 0) || 0;
-  const todayBookings = bookings?.filter((booking: any) => {
+  const totalRevenue = bookingsData.reduce((sum: number, booking: any) => sum + parseFloat(booking.totalPrice), 0);
+  const todayBookings = bookingsData.filter((booking: any) => {
     const today = new Date().toISOString().split('T')[0];
     return booking.date === today;
-  }).length || 0;
+  }).length;
 
-  const stats = [
+  // Always show dummy stats if using dummy data
+  const stats = (bookings && Array.isArray(bookings) && bookings.length > 0) ? [
     {
       title: "Total Bookings",
-      value: bookings?.length || 0,
+      value: bookings.length,
       icon: Calendar,
       color: "from-accent to-green-600"
     },
@@ -69,17 +123,50 @@ export default function AdminBookings() {
     },
     {
       title: "Active Users",
-      value: new Set(bookings?.map((b: any) => b.userId)).size || 0,
+      value: new Set(bookings.map((b: any) => b.user?.email)).size,
+      icon: Users,
+      color: "from-purple-500 to-pink-600"
+    }
+  ] : [
+    {
+      title: "Total Bookings",
+      value: dummyBookings.length,
+      icon: Calendar,
+      color: "from-accent to-green-600"
+    },
+    {
+      title: "Today's Bookings",
+      value: 1,
+      icon: TrendingUp,
+      color: "from-primary to-blue-600"
+    },
+    {
+      title: "Total Revenue",
+      value: `PKR ${dummyBookings.reduce((sum, b) => sum + parseInt(b.totalPrice), 0).toLocaleString()}`,
+      icon: BarChart3,
+      color: "from-yellow-500 to-orange-600"
+    },
+    {
+      title: "Active Users",
+      value: new Set(dummyBookings.map((b: any) => b.user?.email)).size,
       icon: Users,
       color: "from-purple-500 to-pink-600"
     }
   ];
 
+  // Logout handler
+  const handleLogout = () => {
+    auth.logout();
+    setLocation("/admin/login");
+  };
+
   return (
     <div className="flex min-h-screen bg-background">
       <AdminSidebar />
-      
-      <div className="flex-1 p-8">
+      <div className="flex justify-end p-4">
+        <Button onClick={handleLogout} className="bg-destructive text-white hover:bg-red-700">Logout</Button>
+      </div>
+      <div className="flex-1 p-8 pt-0">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -139,7 +226,7 @@ export default function AdminBookings() {
                     <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Statuses</SelectItem>
+                    <SelectItem value="all">All Statuses</SelectItem>
                     <SelectItem value="confirmed">Confirmed</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
                     <SelectItem value="cancelled">Cancelled</SelectItem>
@@ -151,8 +238,8 @@ export default function AdminBookings() {
                     <SelectValue placeholder="Filter by ground" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Grounds</SelectItem>
-                    {grounds?.map((ground: any) => (
+                    <SelectItem value="all">All Grounds</SelectItem>
+                    {groundsData.map((ground: any) => (
                       <SelectItem key={ground.id} value={ground.id.toString()}>
                         {ground.name}
                       </SelectItem>

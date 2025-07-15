@@ -21,6 +21,7 @@ import AdminBookings from "@/pages/admin/bookings";
 import AdminLoyalty from "@/pages/admin/loyalty";
 import AdminTeams from "@/pages/admin/teams";
 import AdminSettings from "@/pages/admin/settings";
+import AdminWalkInBookings from "@/pages/admin/walk-in-bookings";
 import NotFound from "@/pages/not-found";
 
 // Protected Route Component
@@ -88,6 +89,9 @@ function Router() {
       </Route>
       <Route path="/admin/settings">
         <ProtectedRoute component={AdminSettings} adminOnly />
+      </Route>
+      <Route path="/admin/walk-in-bookings">
+        <ProtectedRoute component={AdminWalkInBookings} adminOnly />
       </Route>
       
       {/* Fallback to 404 */}

@@ -44,7 +44,7 @@ export default function Grounds() {
     return matchesSearch && matchesCity && matchesSport;
   });
 
-  const cities = [...new Set(grounds?.map(ground => ground.city) || [])];
+  const cities = Array.from(new Set(grounds?.map(ground => ground.city) || []));
 
   const getSportIcon = (sports: string[]) => {
     if (sports.includes("football") && sports.includes("cricket")) {
@@ -91,7 +91,7 @@ export default function Grounds() {
                         <SelectValue placeholder="Select City" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Cities</SelectItem>
+                        <SelectItem value="all">All Cities</SelectItem>
                         {cities.map(city => (
                           <SelectItem key={city} value={city}>{city}</SelectItem>
                         ))}
@@ -106,7 +106,7 @@ export default function Grounds() {
                         <SelectValue placeholder="Sport Type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Sports</SelectItem>
+                        <SelectItem value="all">All Sports</SelectItem>
                         <SelectItem value="football">Football</SelectItem>
                         <SelectItem value="cricket">Cricket</SelectItem>
                         <SelectItem value="Both">Both</SelectItem>

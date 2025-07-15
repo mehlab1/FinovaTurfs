@@ -14,7 +14,89 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
+
 export default function AdminDashboard() {
+  // Dummy stats and bookings
+  const dummyStats = {
+    revenue: 125000,
+    bookings: 320,
+    occupancy: 78,
+    activeUsers: 120,
+  };
+  const dummyBookings = [
+    {
+      id: 1,
+      user: { name: "Ali Raza" },
+      ground: { name: "Finova Turf 1" },
+      date: "2025-07-15",
+      startTime: "18:00",
+      endTime: "19:00",
+      totalPrice: "2000",
+      status: "confirmed",
+    },
+    {
+      id: 2,
+      user: { name: "Sara Khan" },
+      ground: { name: "Finova Turf 2" },
+      date: "2025-07-15",
+      startTime: "19:00",
+      endTime: "20:00",
+      totalPrice: "2200",
+      status: "pending",
+    },
+    {
+      id: 3,
+      user: { name: "Bilal Ahmed" },
+      ground: { name: "Finova Turf 1" },
+      date: "2025-07-16",
+      startTime: "17:00",
+      endTime: "18:00",
+      totalPrice: "2000",
+      status: "cancelled",
+    },
+    {
+      id: 4,
+      user: { name: "Fatima Shah" },
+      ground: { name: "Finova Turf 2" },
+      date: "2025-07-16",
+      startTime: "20:00",
+      endTime: "21:00",
+      totalPrice: "2500",
+      status: "confirmed",
+    },
+    {
+      id: 5,
+      user: { name: "Omar Malik" },
+      ground: { name: "Finova Turf 1" },
+      date: "2025-07-17",
+      startTime: "18:00",
+      endTime: "19:00",
+      totalPrice: "2000",
+      status: "completed",
+    },
+  ];
+
+  // Dummy data for booking trends (weekly)
+  const dummyTrends = [
+    { day: "Mon", bookings: 30 },
+    { day: "Tue", bookings: 42 },
+    { day: "Wed", bookings: 38 },
+    { day: "Thu", bookings: 50 },
+    { day: "Fri", bookings: 60 },
+    { day: "Sat", bookings: 70 },
+    { day: "Sun", bookings: 30 },
+  ];
+  // Dummy data for peak hours heatmap
+  const dummyHeatmap = [
+    { hour: "16:00", value: 10 },
+    { hour: "17:00", value: 18 },
+    { hour: "18:00", value: 32 },
+    { hour: "19:00", value: 40 },
+    { hour: "20:00", value: 35 },
+    { hour: "21:00", value: 22 },
+    { hour: "22:00", value: 12 },
+  ];
+
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['/api/admin/stats'],
   });
@@ -23,10 +105,16 @@ export default function AdminDashboard() {
     queryKey: ['/api/admin/bookings'],
   });
 
+  // Use dummy data if no data is loaded or if stats are missing/zero
+  const statsData = (stats && typeof stats === 'object' && (stats.revenue > 0 || stats.bookings > 0)) ? stats : dummyStats;
+  const bookingsData = (bookings && Array.isArray(bookings) && bookings.length > 0) ? bookings : dummyBookings;
+  const trendsData = dummyTrends;
+  const heatmapData = dummyHeatmap;
+
   const statCards = [
     {
       title: "Monthly Revenue",
-      value: `PKR ${stats?.revenue?.toLocaleString() || '0'}`,
+      value: `PKR ${statsData.revenue?.toLocaleString()}`,
       change: "+12%",
       trend: "up",
       icon: DollarSign,
@@ -34,7 +122,7 @@ export default function AdminDashboard() {
     },
     {
       title: "Total Bookings",
-      value: stats?.bookings || '0',
+      value: statsData.bookings,
       change: "+8%",
       trend: "up",
       icon: Calendar,
@@ -42,7 +130,7 @@ export default function AdminDashboard() {
     },
     {
       title: "Occupancy Rate",
-      value: `${stats?.occupancy || 0}%`,
+      value: `${statsData.occupancy}%`,
       change: "-3%",
       trend: "down",
       icon: BarChart3,
@@ -50,7 +138,7 @@ export default function AdminDashboard() {
     },
     {
       title: "Active Users",
-      value: stats?.activeUsers?.toLocaleString() || '0',
+      value: statsData.activeUsers,
       change: "+15%",
       trend: "up",
       icon: Users,
@@ -58,7 +146,7 @@ export default function AdminDashboard() {
     }
   ];
 
-  const recentBookings = bookings?.slice(0, 5) || [];
+  const recentBookings = bookingsData.slice(0, 5);
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -114,6 +202,7 @@ export default function AdminDashboard() {
 
         {/* Charts and Analytics */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Booking Trends Chart (dummy bar chart) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -127,17 +216,24 @@ export default function AdminDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-64 flex items-center justify-center text-gray-400">
-                  <div className="text-center">
-                    <Activity className="w-12 h-12 mx-auto mb-4 text-accent" />
-                    <p className="text-lg font-medium">Weekly Booking Analytics</p>
-                    <p className="text-sm">Chart visualization showing booking patterns</p>
+                <div className="h-64 flex items-center justify-center">
+                  <div className="w-full h-full flex items-end gap-2">
+                    {trendsData.map((d, i) => (
+                      <div key={d.day} className="flex flex-col items-center flex-1">
+                        <div
+                          className="rounded-t bg-accent"
+                          style={{ height: `${d.bookings * 2}px`, minHeight: '10px', width: '24px', transition: 'height 0.3s' }}
+                        ></div>
+                        <span className="text-xs text-gray-400 mt-2">{d.day}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </CardContent>
             </Card>
           </motion.div>
 
+          {/* Peak Hours Heatmap (dummy horizontal bar chart) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -151,12 +247,17 @@ export default function AdminDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-64 flex items-center justify-center text-gray-400">
-                  <div className="text-center">
-                    <PieChart className="w-12 h-12 mx-auto mb-4 text-accent" />
-                    <p className="text-lg font-medium">Peak Hours Analysis</p>
-                    <p className="text-sm">Heatmap showing high-demand time slots</p>
-                  </div>
+                <div className="h-64 flex flex-col justify-center gap-2">
+                  {heatmapData.map((d, i) => (
+                    <div key={d.hour} className="flex items-center gap-2">
+                      <span className="text-xs text-gray-400 w-12">{d.hour}</span>
+                      <div
+                        className="rounded bg-accent"
+                        style={{ height: '18px', width: `${d.value * 6}px`, minWidth: '10px', transition: 'width 0.3s' }}
+                      ></div>
+                      <span className="text-xs text-gray-400">{d.value} bookings</span>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>

@@ -1,3 +1,21 @@
+@layer utilities {
+  .animate-spin-slow { animation: spin 18s linear infinite; }
+  .animate-pulse { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+  .animate-move-x { animation: moveX 7s linear infinite; }
+  .animate-move-x-reverse { animation: moveXReverse 9s linear infinite; }
+  .animate-bounce-sport { animation: bounceSport 2.5s cubic-bezier(.8,0,.2,1) infinite alternate; }
+  .animate-bounce-sport-reverse { animation: bounceSportReverse 2.8s cubic-bezier(.8,0,.2,1) infinite alternate; }
+  .animate-fly-text { animation: flyText 8s linear infinite; }
+  .animate-fly-text-reverse { animation: flyTextReverse 10s linear infinite; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes moveX { 0%{transform:translateX(-10vw);} 50%{transform:translateX(10vw);} 100%{transform:translateX(-10vw);} }
+  @keyframes moveXReverse { 0%{transform:translateX(10vw);} 50%{transform:translateX(-10vw);} 100%{transform:translateX(10vw);} }
+  @keyframes bounceSport { 0%{transform:translateY(0);} 50%{transform:translateY(-30px);} 100%{transform:translateY(0);} }
+  @keyframes bounceSportReverse { 0%{transform:translateY(0);} 50%{transform:translateY(30px);} 100%{transform:translateY(0);} }
+  @keyframes flyText { 0%{left:-20%;} 100%{left:110%;} }
+  @keyframes flyTextReverse { 0%{left:100%;} 100%{left:-30%;} }
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

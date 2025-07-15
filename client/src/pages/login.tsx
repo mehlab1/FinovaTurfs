@@ -70,12 +70,25 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black to-gray-900 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black to-gray-900 px-4 relative overflow-hidden">
+      {/* Energetic Sporty Animated CSS Background */}
+      <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
+        <div className="absolute w-[120vw] h-[120vw] left-[-10vw] top-[-40vw] bg-gradient-to-tr from-accent/60 via-blue-700/40 to-primary/60 rounded-full blur-3xl animate-spin-slow" style={{animationDuration:'18s'}} />
+        <div className="absolute w-[80vw] h-[80vw] right-[-20vw] bottom-[-30vw] bg-gradient-to-br from-primary/40 via-accent/30 to-blue-900/40 rounded-full blur-2xl animate-pulse" style={{animationDuration:'8s'}} />
+        {/* Animated lines */}
+        <div className="absolute left-0 top-1/3 w-full h-1 bg-gradient-to-r from-accent/60 via-transparent to-primary/60 blur-lg animate-move-x" style={{animationDuration:'7s'}} />
+        <div className="absolute left-0 top-2/3 w-full h-1 bg-gradient-to-r from-primary/60 via-transparent to-accent/60 blur-lg animate-move-x-reverse" style={{animationDuration:'9s'}} />
+        {/* Animated balls */}
+        <div className="absolute left-[10%] top-[20%] w-16 h-16 bg-white rounded-full shadow-2xl border-4 border-accent animate-bounce-sport" style={{animationDuration:'2.5s'}} />
+        <div className="absolute left-[80%] top-[70%] w-10 h-10 bg-white rounded-full shadow-xl border-4 border-primary animate-bounce-sport-reverse" style={{animationDuration:'2.8s'}} />
+        <div className="absolute left-[50%] top-[85%] w-8 h-8 bg-white rounded-full shadow-lg border-4 border-blue-700 animate-bounce-sport" style={{animationDuration:'2.2s'}} />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative"
+        style={{zIndex:1}}
       >
         <Card className="glassmorphic border-gray-700">
           <CardHeader className="text-center">

@@ -157,37 +157,37 @@ export default function AdminLoyalty() {
         >
           <Card className="glassmorphic border-gray-700">
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Gift className="w-5 h-5 mr-2 text-accent" />
-                Program Settings
+              <CardTitle className="flex items-center text-2xl gap-3">
+                <Gift className="w-8 h-8 text-accent drop-shadow-lg" />
+                <span className="font-bold">Program Settings</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div>
-                  <Label htmlFor="earn-rate">Earn Rate (points per PKR 100)</Label>
+                <div className="h-full flex flex-col justify-end">
+                  <Label htmlFor="earn-rate" className="mb-2 text-base font-medium text-white">Earn Rate (points per PKR 100)</Label>
                   <Input
                     id="earn-rate"
                     type="number"
                     step="0.1"
                     value={programSettings.earnRate}
                     onChange={(e) => setProgramSettings(prev => ({ ...prev, earnRate: parseFloat(e.target.value) }))}
-                    className="bg-gray-800 border-gray-700"
+                    className="bg-gray-800 border-gray-700 py-3 px-4 text-lg focus:ring-2 focus:ring-accent"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="redemption-rate">Redemption Rate (PKR per point)</Label>
+                <div className="h-full flex flex-col justify-end">
+                  <Label htmlFor="redemption-rate" className="mb-2 text-base font-medium text-white">Redemption Rate (PKR per point)</Label>
                   <Input
                     id="redemption-rate"
                     type="number"
                     step="0.1"
                     value={programSettings.redemptionRate}
                     onChange={(e) => setProgramSettings(prev => ({ ...prev, redemptionRate: parseFloat(e.target.value) }))}
-                    className="bg-gray-800 border-gray-700"
+                    className="bg-gray-800 border-gray-700 py-3 px-4 text-lg focus:ring-2 focus:ring-accent"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="weekend-bonus">Weekend Bonus Multiplier</Label>
+                <div className="h-full flex flex-col justify-end">
+                  <Label htmlFor="weekend-bonus" className="mb-2 text-base font-medium text-white">Weekend Bonus Multiplier</Label>
                   <Input
                     id="weekend-bonus"
                     type="number"
@@ -197,11 +197,11 @@ export default function AdminLoyalty() {
                       ...prev, 
                       bonusMultipliers: { ...prev.bonusMultipliers, weekend: parseFloat(e.target.value) }
                     }))}
-                    className="bg-gray-800 border-gray-700"
+                    className="bg-gray-800 border-gray-700 py-3 px-4 text-lg focus:ring-2 focus:ring-accent"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="peak-bonus">Peak Hours Bonus</Label>
+                <div className="h-full flex flex-col justify-end">
+                  <Label htmlFor="peak-bonus" className="mb-2 text-base font-medium text-white">Peak Hours Bonus</Label>
                   <Input
                     id="peak-bonus"
                     type="number"
@@ -211,7 +211,7 @@ export default function AdminLoyalty() {
                       ...prev, 
                       bonusMultipliers: { ...prev.bonusMultipliers, peak: parseFloat(e.target.value) }
                     }))}
-                    className="bg-gray-800 border-gray-700"
+                    className="bg-gray-800 border-gray-700 py-3 px-4 text-lg focus:ring-2 focus:ring-accent"
                   />
                 </div>
               </div>

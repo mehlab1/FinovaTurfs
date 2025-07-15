@@ -9,10 +9,72 @@ import { type Booking } from "@/lib/types";
 import { Calendar, MapPin, Clock, Sun, CloudSun, Moon, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 
+import { useState } from "react";
+
 export default function Bookings() {
   const user = auth.getUser();
 
-  const { data: bookings, isLoading } = useQuery<Booking[]>({
+  // Demo bookings if no real data
+  const demoBookings: Booking[] = [
+    {
+      id: 1,
+      userId: user?.id || 1,
+      groundId: 1,
+      date: "2025-07-10",
+      startTime: "10:00",
+      endTime: "11:00",
+      duration: "1",
+      totalPrice: "2000",
+      usedLoyaltyPoints: false,
+      status: "completed",
+      createdAt: "2025-07-01T10:00:00Z",
+      ground: { id: 1, name: "Finova Turf 1", location: "DHA Phase 6", city: "Karachi", sports: ["Football"], basePrice: "2000", openTime: "08:00", closeTime: "22:00", rating: "4.5" },
+    },
+    {
+      id: 2,
+      userId: user?.id || 1,
+      groundId: 2,
+      date: "2025-07-12",
+      startTime: "12:00",
+      endTime: "13:00",
+      duration: "1",
+      totalPrice: "2200",
+      usedLoyaltyPoints: false,
+      status: "completed",
+      createdAt: "2025-07-02T12:00:00Z",
+      ground: { id: 2, name: "Finova Turf 2", location: "Gulshan-e-Iqbal", city: "Karachi", sports: ["Cricket"], basePrice: "2200", openTime: "08:00", closeTime: "22:00", rating: "4.7" },
+    },
+    {
+      id: 3,
+      userId: user?.id || 1,
+      groundId: 1,
+      date: "2025-07-13",
+      startTime: "16:00",
+      endTime: "17:00",
+      duration: "1",
+      totalPrice: "2000",
+      usedLoyaltyPoints: false,
+      status: "cancelled",
+      createdAt: "2025-07-10T16:00:00Z",
+      ground: { id: 1, name: "Finova Turf 1", location: "DHA Phase 6", city: "Karachi", sports: ["Football"], basePrice: "2000", openTime: "08:00", closeTime: "22:00", rating: "4.5" },
+    },
+    {
+      id: 4,
+      userId: user?.id || 1,
+      groundId: 2,
+      date: "2025-07-18",
+      startTime: "19:00",
+      endTime: "20:00",
+      duration: "1",
+      totalPrice: "2200",
+      usedLoyaltyPoints: false,
+      status: "confirmed",
+      createdAt: "2025-07-15T19:00:00Z",
+      ground: { id: 2, name: "Finova Turf 2", location: "Gulshan-e-Iqbal", city: "Karachi", sports: ["Cricket"], basePrice: "2200", openTime: "08:00", closeTime: "22:00", rating: "4.7" },
+    },
+  ];
+
+  const { data: bookingsApi, isLoading } = useQuery<Booking[]>({
     queryKey: ['/api/bookings'],
     queryFn: async () => {
       const response = await fetch(`/api/bookings?userId=${user?.id}`);
@@ -21,6 +83,29 @@ export default function Bookings() {
     },
     enabled: !!user,
   });
+
+  // Use demo bookings if no real data
+  const [bookings, setBookings] = useState<Booking[]>(bookingsApi && bookingsApi.length > 0 ? bookingsApi : demoBookings);
+
+  // Update bookings if API data loads
+  if (bookingsApi && bookingsApi.length > 0 && bookings !== bookingsApi) {
+    setBookings(bookingsApi);
+  }
+
+  const handleCancel = (id: number) => {
+    setBookings(prev => prev.map(b => b.id === id ? { ...b, status: 'cancelled' } : b));
+  };
+
+  // Helper to show 'Upcoming' for future confirmed bookings
+  const getDisplayStatus = (booking: Booking) => {
+    if (booking.status === 'confirmed') {
+      const today = new Date();
+      const bookingDate = new Date(booking.date + 'T' + booking.startTime);
+      if (bookingDate > today) return 'Upcoming';
+      return 'Confirmed';
+    }
+    return booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -142,9 +227,9 @@ export default function Bookings() {
                               </div>
                             </TableCell>
                             <TableCell>
-                              <Badge className={getStatusColor(booking.status)}>
-                                {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                              </Badge>
+                            <Badge className={getStatusColor(booking.status)}>
+                              {getDisplayStatus(booking)}
+                            </Badge>
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center space-x-2">
@@ -158,7 +243,17 @@ export default function Bookings() {
                               </span>
                             </TableCell>
                             <TableCell>
-                              {booking.status === 'confirmed' || booking.status === 'completed' ? (
+                              {booking.status === 'confirmed' && (
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive"
+                                  className="hover:bg-opacity-80"
+                                  onClick={() => handleCancel(booking.id)}
+                                >
+                                  Cancel
+                                </Button>
+                              )}
+                              {booking.status === 'completed' && (
                                 <Button 
                                   size="sm" 
                                   className="bg-primary text-white hover:bg-opacity-80"
@@ -166,15 +261,7 @@ export default function Bookings() {
                                   <RefreshCw className="w-3 h-3 mr-1" />
                                   Rebook
                                 </Button>
-                              ) : booking.status === 'upcoming' ? (
-                                <Button 
-                                  size="sm" 
-                                  variant="destructive"
-                                  className="hover:bg-opacity-80"
-                                >
-                                  Cancel
-                                </Button>
-                              ) : null}
+                              )}
                             </TableCell>
                           </motion.tr>
                         ))}

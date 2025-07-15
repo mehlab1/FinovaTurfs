@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,12 @@ export function AIAssistant({ isOpen, onClose }: AIAssistantProps) {
       timestamp: new Date(),
     }
   ]);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
   const [input, setInput] = useState('');
 
   const aiMutation = useMutation({
@@ -123,7 +129,6 @@ export function AIAssistant({ isOpen, onClose }: AIAssistantProps) {
                 </motion.div>
               ))}
             </AnimatePresence>
-            
             {aiMutation.isPending && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -142,6 +147,7 @@ export function AIAssistant({ isOpen, onClose }: AIAssistantProps) {
                 </div>
               </motion.div>
             )}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
         

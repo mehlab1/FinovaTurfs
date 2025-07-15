@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/auth";
 import { type Ground, type TimeSlot, type WeatherHour } from "@/lib/types";
-import { ArrowLeft, Sun, CloudSun, Moon, Thermometer } from "lucide-react";
+import { ArrowLeft, Sun, CloudSun, Moon, Thermometer, CloudRain } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface TimeSlotPickerProps {
@@ -128,13 +128,30 @@ export function TimeSlotPicker({ groundId, onBack }: TimeSlotPickerProps) {
       case 'sun': return <Sun className="w-4 h-4 text-yellow-400 weather-icon" />;
       case 'cloud-sun': return <CloudSun className="w-4 h-4 text-orange-400 weather-icon" />;
       case 'moon': return <Moon className="w-4 h-4 text-blue-400 weather-icon" />;
+      case 'rain': return <CloudRain className="w-4 h-4 text-blue-500 weather-icon" />;
       default: return <Sun className="w-4 h-4 text-yellow-400 weather-icon" />;
     }
   };
 
   const getWeatherForSlot = (time: string): WeatherHour | null => {
-    if (!weatherData?.hourlyData) return null;
-    return weatherData.hourlyData.find((hour: WeatherHour) => hour.time === time) || null;
+    if (!weatherData?.hourlyData || weatherData.hourlyData.length === 0) return null;
+    // Try exact match first
+    const exact = weatherData.hourlyData.find((hour: WeatherHour) => hour.time === time);
+    if (exact) return exact;
+    // If not found, find the closest previous time, else the next available
+    const slotMinutes = parseInt(time.split(":")[0], 10) * 60 + parseInt(time.split(":")[1], 10);
+    let closest = null;
+    let minDiff = Infinity;
+    for (const hour of weatherData.hourlyData) {
+      const [h, m] = hour.time.split(":").map(Number);
+      const weatherMinutes = h * 60 + m;
+      const diff = Math.abs(slotMinutes - weatherMinutes);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closest = hour;
+      }
+    }
+    return closest;
   };
 
   if (isLoading) {
@@ -197,9 +214,30 @@ export function TimeSlotPicker({ groundId, onBack }: TimeSlotPickerProps) {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-96 overflow-y-auto">
                   <AnimatePresence>
                     {slotsData.slots.map((slot: TimeSlot, index: number) => {
-                      const weather = getWeatherForSlot(slot.time);
+                      let weather = getWeatherForSlot(slot.time);
                       const isSelected = selectedSlots.includes(slot.time);
-                      
+
+                      // For demo: add rain to some low demand slots
+                      // e.g. every 3rd low demand slot
+                      let showRain = false;
+                      if (slot.demand === 'low' && index % 3 === 1) {
+                        showRain = true;
+                      }
+                      if (showRain && weather) {
+                        weather = { ...weather, icon: 'rain' };
+                      }
+
+                      // Calculate end time for display (30 min slot)
+                      const [h, m] = slot.time.split(":").map(Number);
+                      let endH = h;
+                      let endM = m + 30;
+                      if (endM >= 60) {
+                        endH += 1;
+                        endM = 0;
+                      }
+                      const endTime = `${endH.toString().padStart(2, "0")}:${endM.toString().padStart(2, "0")}`;
+                      const slotLabel = `${slot.time}-${endTime}`;
+
                       return (
                         <motion.div
                           key={slot.time}
@@ -214,7 +252,7 @@ export function TimeSlotPicker({ groundId, onBack }: TimeSlotPickerProps) {
                           onClick={() => toggleSlot(slot.time)}
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <span className="font-semibold">{slot.time}</span>
+                            <span className="font-semibold">{slotLabel}</span>
                             {weather && getWeatherIcon(weather.icon)}
                           </div>
                           {weather && (
