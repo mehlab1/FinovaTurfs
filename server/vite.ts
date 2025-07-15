@@ -68,7 +68,8 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "public");
+  // Serve static files from the built frontend
+  const distPath = path.resolve(import.meta.dirname, "..", "dist", "public");
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
@@ -78,8 +79,9 @@ export function serveStatic(app: Express) {
 
   app.use(express.static(distPath));
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
+  // For all non-API routes, serve index.html (for React Router)
+  app.get("*", (req, res) => {
+    if (req.path.startsWith("/api")) return res.status(404).end();
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }

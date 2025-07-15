@@ -53,16 +53,9 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  const port = 5000;
-
-  // ✅ FIX: host is undefined instead of '127.0.0.1'
-  server.listen(
-    {
-      port,
-      host: "127.0.0.1",
-    },
-    () => {
-      log(`serving on http://localhost:${port}`);
-    }
-  );
+  // Use Railway/Render/Heroku compatible port
+  const port = process.env.PORT ? Number(process.env.PORT) : 5000;
+  server.listen(port, () => {
+    log(`serving on http://localhost:${port}`);
+  });
 })();
