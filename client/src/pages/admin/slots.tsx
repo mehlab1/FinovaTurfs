@@ -20,6 +20,7 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { dataService } from "@/lib/data";
 
 export default function AdminSlots() {
   const [selectedGround, setSelectedGround] = useState<string>("");
@@ -35,13 +36,20 @@ export default function AdminSlots() {
   const queryClient = useQueryClient();
 
   const { data: grounds } = useQuery({
-    queryKey: ['/api/grounds'],
+    queryKey: ['grounds'],
+    queryFn: () => dataService.getAllGrounds(),
   });
-
-  const { data: slotsData, isLoading } = useQuery({
-    queryKey: ['/api/slots', selectedGround],
+  const { data: slotsDataRaw, isLoading } = useQuery({
+    queryKey: ['slots', selectedGround],
+    queryFn: () => selectedGround ? dataService.getSlotsByGroundId(parseInt(selectedGround)) : null,
     enabled: !!selectedGround,
   });
+  const slotsData = slotsDataRaw && typeof slotsDataRaw === 'object' && Array.isArray(slotsDataRaw.slots)
+    ? slotsDataRaw as { slots: any[] }
+    : { slots: [] };
+  const slotsList = slotsData.slots;
+
+  const groundsList = Array.isArray(grounds) ? grounds : [];
 
   const createSlotMutation = useMutation({
     mutationFn: async (slotData: any) => {
@@ -165,7 +173,7 @@ export default function AdminSlots() {
                       <SelectValue placeholder="Choose a ground" />
                     </SelectTrigger>
                     <SelectContent>
-                      {grounds?.map((ground: any) => (
+                      {groundsList.map((ground: any) => (
                         <SelectItem key={ground.id} value={ground.id.toString()}>
                           {ground.name}
                         </SelectItem>
@@ -204,7 +212,7 @@ export default function AdminSlots() {
                       <SelectValue placeholder="Select ground" />
                     </SelectTrigger>
                     <SelectContent>
-                      {grounds?.map((ground: any) => (
+                      {groundsList.map((ground: any) => (
                         <SelectItem key={ground.id} value={ground.id.toString()}>
                           {ground.name}
                         </SelectItem>
@@ -280,7 +288,7 @@ export default function AdminSlots() {
                     Current Slots
                   </div>
                   <Badge variant="secondary">
-                    {slotsData?.slots?.length || 0} slots
+                    {slotsList.length || 0} slots
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -291,14 +299,14 @@ export default function AdminSlots() {
                       <div key={i} className="h-16 bg-gray-800 rounded animate-pulse"></div>
                     ))}
                   </div>
-                ) : slotsData?.slots?.length === 0 ? (
+                ) : slotsList.length === 0 ? (
                   <div className="text-center py-8">
                     <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-400">No slots configured for this ground</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {slotsData?.slots?.map((slot: any, index: number) => (
+                    {slotsList.map((slot: any, index: number) => (
                       <motion.div
                         key={`${slot.time}-${index}`}
                         initial={{ opacity: 0, scale: 0.9 }}

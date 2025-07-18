@@ -76,11 +76,8 @@
   * {
     @apply border-border;
   }
-
   body {
-    @apply font-sans antialiased bg-background text-foreground dark;
-    min-height: 100vh;
-    background: linear-gradient(135deg, hsl(0, 0%, 0%) 0%, hsl(240, 10%, 3.9%) 100%);
+    @apply bg-background text-foreground;
   }
 }
 
@@ -90,25 +87,92 @@
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
-  
+
+  .slot-card {
+    background: rgba(31, 41, 55, 0.7);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.125);
+    transition: all 0.3s ease;
+  }
+
+  .slot-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  }
+
   .slot-selected {
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
     border: 2px solid hsl(160, 84%, 39%);
-    animation: pulseGlow 2s infinite;
+    box-shadow: 0 20px rgba(16, 185, 129, 0.3);
   }
-  
+
   .demand-high {
     background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
     border-left: 4px solid hsl(0, 84%, 60%);
   }
-  
+
   .demand-low {
     background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
     border-left: 4px solid hsl(142, 76%, 36%);
   }
-  
+
   .weather-icon {
-    filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.3));
+    filter: drop-shadow(0 2px 5px rgba(16, 185, 129, 0.3));
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  .perspective-100 {
+    perspective: 1000px;
+  }
+
+  .slot-3 {
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease;
+  }
+
+  .slot-3d:hover {
+    transform: rotateX(5deg) rotateY(5deg) scale(1.05);
+  }
+
+  .slot-3ed {
+    transform: rotateX(0deg) rotateY(0deg) scale(1.1);
+    box-shadow: 0 20px 40px rgba(59, 130, 246, 0.4);
+  }
+
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+    }
+    to {
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.8), 0 0 30px rgba(16, 185, 129, 0.6);
+    }
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { 
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); 
+    }
+    50% { 
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); 
+    }
+  }
+
+  .gradient-bg {
+    background: linear-gradient(135deg, #667ea0, #764a20);
+  }
+
+  .card-3 {
+    transform-style: preserve-3d;
+    transition: all 0.3s ease;
+  }
+
+  .card-3d:hover {
+    transform: translateY(-5px) rotateX(5deg);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   }
 }
 

@@ -10,6 +10,7 @@ import { Calendar, MapPin, Clock, Sun, CloudSun, Moon, RefreshCw } from "lucide-
 import { motion } from "framer-motion";
 
 import { useState } from "react";
+import { dataService } from "@/lib/data";
 
 export default function Bookings() {
   const user = auth.getUser();
@@ -75,11 +76,10 @@ export default function Bookings() {
   ];
 
   const { data: bookingsApi, isLoading } = useQuery<Booking[]>({
-    queryKey: ['/api/bookings'],
+    queryKey: ['bookings'],
     queryFn: async () => {
-      const response = await fetch(`/api/bookings?userId=${user?.id}`);
-      if (!response.ok) throw new Error('Failed to fetch bookings');
-      return response.json();
+      if (!user) throw new Error('User not found');
+      return await dataService.getBookingsByUserId(user.id);
     },
     enabled: !!user,
   });

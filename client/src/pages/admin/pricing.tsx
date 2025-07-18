@@ -22,6 +22,7 @@ import {
   CloudRain
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { dataService } from "@/lib/data";
 
 interface PricingRule {
   id: string;
@@ -90,8 +91,11 @@ export default function AdminPricing() {
   ];
 
   const { data: grounds } = useQuery({
-    queryKey: ['/api/grounds'],
+    queryKey: ['grounds'],
+    queryFn: () => dataService.getAllGrounds(),
   });
+  // Use an array fallback for grounds
+  const groundsList = Array.isArray(grounds) ? grounds : [];
 
   const updatePricingMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -231,7 +235,7 @@ export default function AdminPricing() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {grounds?.map((ground: any, index: number) => (
+                {groundsList.map((ground: any, index: number) => (
                   <motion.div
                     key={ground.id}
                     initial={{ opacity: 0, scale: 0.9 }}

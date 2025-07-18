@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Search, Filter, Download, Eye, Users, TrendingUp, BarChart3 } from "lucide-react";
 import { motion } from "framer-motion";
+import { dataService } from "@/lib/data";
 
 
 export default function AdminBookings() {
@@ -65,11 +66,13 @@ export default function AdminBookings() {
 
 
   const { data: bookings, isLoading } = useQuery({
-    queryKey: ['/api/admin/bookings'],
+    queryKey: ['admin/bookings'],
+    queryFn: () => dataService.getAdminBookings(),
   });
 
   const { data: grounds } = useQuery({
-    queryKey: ['/api/grounds'],
+    queryKey: ['grounds'],
+    queryFn: () => dataService.getAllGrounds(),
   });
 
   // Use dummy data if no data is loaded

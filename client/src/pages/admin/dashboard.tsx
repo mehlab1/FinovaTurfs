@@ -13,66 +13,63 @@ import {
   Activity
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { AdminStats, Booking } from "@/lib/types";
+import { dataService } from "@/lib/data";
 
 
 export default function AdminDashboard() {
   // Dummy stats and bookings
-  const dummyStats = {
-    revenue: 125000,
-    bookings: 320,
-    occupancy: 78,
-    activeUsers: 120,
+  const dummyStats: AdminStats = {
+    revenue: 0,
+    bookings: 0,
+    occupancy: 0,
+    activeUsers: 0,
   };
-  const dummyBookings = [
+  const dummyBookings: Booking[] = [
     {
-      id: 1,
-      user: { name: "Ali Raza" },
-      ground: { name: "Finova Turf 1" },
+      id: 101,
+      userId: 1,
+      groundId: 1,
       date: "2025-07-15",
       startTime: "18:00",
       endTime: "19:00",
+      duration: "1",
       totalPrice: "2000",
+      usedLoyaltyPoints: false,
       status: "confirmed",
+      createdAt: "2025-07-15T18:00:00Z",
+      user: { id: 1, username: "ali", password: "", name: "Ali Raza", email: "ali@example.com", isAdmin: false, loyaltyPoints: 0, createdAt: "2025-07-01T00:00:00Z" },
+      ground: { id: 1, name: "Victory Sports Complex", location: "Defence, Karachi", city: "Karachi", sports: ["football"], basePrice: "2000", openTime: "10:00", closeTime: "01:00", rating: "4.8", imageUrl: "" },
     },
     {
-      id: 2,
-      user: { name: "Sara Khan" },
-      ground: { name: "Finova Turf 2" },
+      id: 102,
+      userId: 2,
+      groundId: 2,
       date: "2025-07-15",
       startTime: "19:00",
       endTime: "20:00",
+      duration: "1",
       totalPrice: "2200",
+      usedLoyaltyPoints: false,
       status: "pending",
+      createdAt: "2025-07-15T19:00:00Z",
+      user: { id: 2, username: "sara", password: "", name: "Sara Khan", email: "sara@example.com", isAdmin: false, loyaltyPoints: 0, createdAt: "2025-07-01T00:00:00Z" },
+      ground: { id: 2, name: "Elite Football Arena", location: "Gulberg, Lahore", city: "Lahore", sports: ["football"], basePrice: "1800", openTime: "10:00", closeTime: "01:00", rating: "4.6", imageUrl: "" },
     },
     {
-      id: 3,
-      user: { name: "Bilal Ahmed" },
-      ground: { name: "Finova Turf 1" },
+      id: 103,
+      userId: 3,
+      groundId: 1,
       date: "2025-07-16",
       startTime: "17:00",
       endTime: "18:00",
+      duration: "1",
       totalPrice: "2000",
+      usedLoyaltyPoints: false,
       status: "cancelled",
-    },
-    {
-      id: 4,
-      user: { name: "Fatima Shah" },
-      ground: { name: "Finova Turf 2" },
-      date: "2025-07-16",
-      startTime: "20:00",
-      endTime: "21:00",
-      totalPrice: "2500",
-      status: "confirmed",
-    },
-    {
-      id: 5,
-      user: { name: "Omar Malik" },
-      ground: { name: "Finova Turf 1" },
-      date: "2025-07-17",
-      startTime: "18:00",
-      endTime: "19:00",
-      totalPrice: "2000",
-      status: "completed",
+      createdAt: "2025-07-16T17:00:00Z",
+      user: { id: 3, username: "bilal", password: "", name: "Bilal Ahmed", email: "bilal@example.com", isAdmin: false, loyaltyPoints: 0, createdAt: "2025-07-01T00:00:00Z" },
+      ground: { id: 1, name: "Victory Sports Complex", location: "Defence, Karachi", city: "Karachi", sports: ["football"], basePrice: "2000", openTime: "10:00", closeTime: "01:00", rating: "4.8", imageUrl: "" },
     },
   ];
 
@@ -97,17 +94,19 @@ export default function AdminDashboard() {
     { hour: "22:00", value: 12 },
   ];
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['/api/admin/stats'],
+  const { data: stats, isLoading: statsLoading } = useQuery<AdminStats>({
+    queryKey: ['admin/stats'],
+    queryFn: () => dataService.getAdminStats(),
   });
 
-  const { data: bookings, isLoading: bookingsLoading } = useQuery({
-    queryKey: ['/api/admin/bookings'],
+  const { data: bookings, isLoading: bookingsLoading } = useQuery<Booking[]>({
+    queryKey: ['admin/bookings'],
+    queryFn: () => dataService.getAdminBookings(),
   });
 
   // Use dummy data if no data is loaded or if stats are missing/zero
-  const statsData = (stats && typeof stats === 'object' && (stats.revenue > 0 || stats.bookings > 0)) ? stats : dummyStats;
-  const bookingsData = (bookings && Array.isArray(bookings) && bookings.length > 0) ? bookings : dummyBookings;
+  const statsData: AdminStats = (stats && (stats.revenue > 0 || stats.bookings > 0)) ? stats : dummyStats;
+  const bookingsData: Booking[] = (bookings && bookings.length > 0) ? bookings : dummyBookings;
   const trendsData = dummyTrends;
   const heatmapData = dummyHeatmap;
 
@@ -300,7 +299,7 @@ export default function AdminDashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {recentBookings.map((booking: any, index: number) => (
+                  {recentBookings.map((booking: Booking, index: number) => (
                     <motion.div
                       key={booking.id}
                       initial={{ opacity: 0, x: -20 }}

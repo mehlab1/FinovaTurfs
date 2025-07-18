@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Bot, User, Send, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { dataService } from "@/lib/data";
 
 interface Message {
   id: string;
@@ -39,17 +40,7 @@ export function AIAssistant({ isOpen, onClose }: AIAssistantProps) {
 
   const aiMutation = useMutation({
     mutationFn: async (message: string) => {
-      const response = await fetch('/api/ai/assistant', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to get AI response');
-      }
-      
-      return response.json();
+      return await dataService.getAIResponse(message);
     },
     onSuccess: (data) => {
       const aiMessage: Message = {

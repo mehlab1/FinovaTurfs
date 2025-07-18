@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { type Ground } from "@/lib/types";
 import { Search, MapPin, Filter, Star, Gamepad2, Target } from "lucide-react";
 import { motion } from "framer-motion";
+import { dataService } from "@/lib/data";
 
 export default function Grounds() {
   const [selectedGroundId, setSelectedGroundId] = useState<number | null>(null);
@@ -18,7 +19,8 @@ export default function Grounds() {
   const [selectedSport, setSelectedSport] = useState("");
 
   const { data: grounds, isLoading } = useQuery<Ground[]>({
-    queryKey: ['/api/grounds'],
+    queryKey: ['grounds'],
+    queryFn: () => dataService.getAllGrounds(),
   });
 
   if (selectedGroundId) {

@@ -1,11 +1,4 @@
-interface User {
-  id: number;
-  username: string;
-  name: string;
-  email: string;
-  isAdmin: boolean;
-  loyaltyPoints: number;
-}
+import { dataService, type User } from './data';
 
 interface AuthState {
   user: User | null;
@@ -48,27 +41,21 @@ export class AuthManager {
 
   async login(username: string, password: string): Promise<boolean> {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
+      const result = await dataService.login(username, password);
+      
+      if (result) {
+        this.state = {
+          token: result.token,
+          user: result.user,
+        };
 
-      if (!response.ok) {
-        throw new Error('Login failed');
+        localStorage.setItem('finova_token', result.token);
+        localStorage.setItem('finova_user', JSON.stringify(result.user));
+        
+        return true;
       }
-
-      const data = await response.json();
       
-      this.state = {
-        token: data.token,
-        user: data.user,
-      };
-
-      localStorage.setItem('finova_token', data.token);
-      localStorage.setItem('finova_user', JSON.stringify(data.user));
-      
-      return true;
+      return false;
     } catch {
       return false;
     }
